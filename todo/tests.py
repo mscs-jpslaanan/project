@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page
+from todo.views import home_page, tick_done
 
 from todo.models import ToDo
 
@@ -65,7 +65,20 @@ class HomePageTest(TestCase):
         self.assertIn('Cancelled', response.content.decode())
         self.assertIn('Done', response.content.decode())
         
+class TodoOperationsTest(TestCase):
+    def test_tick_as_done(self):
+        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
+        request = HttpRequest()
+        response = tick_done(request, 5)
+        self.assertEqual(ToDo.objects.get(id=5).archive, 1)
 
+    def test_tick_as_cancelled(self):
+        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
+        request = HttpRequest()
+        response = tick_done(request, 5)
+        self.assertEqual(ToDo.objects.get(id=5).archive, 2)
+        
+        
 class TodoModelTest(TestCase):
 
     def test_saving_and_retrieving_todoList(self):

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import Context
 
@@ -19,4 +19,10 @@ def home_page(request):
                   )
 
     
-    
+def tick_done(request, todoID=1):
+    ToDo.objects.filter(id=todoID).update(archive=1)
+    return redirect('home')
+
+def tick_cancel(request, todoID=1):
+    ToDo.objects.filter(id=todoID).update(archive=2)
+    return redirect('home')
