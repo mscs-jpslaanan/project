@@ -4,7 +4,6 @@ from django.test import TestCase
 
 
 from todo.views import home_page
-from todo.views import add_todo_page
 
 from todo.models import todo
 
