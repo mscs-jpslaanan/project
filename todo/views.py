@@ -10,9 +10,7 @@ def home_page(request):
         
     ToDo.objects.filter(date_todo__lt=current_date).filter(archive='0').update(date_todo=current_date)
     
-    current_todo_list = ToDo.objects.filter(date_todo=current_date).filter(archive='0')
-    
-    
+    current_todo_list = ToDo.objects.filter(date_todo=current_date)
     
     return render(request, 'home.html', 
                             {'curr_date': current_date,
