@@ -43,6 +43,16 @@ class HomePageTest(TestCase):
         response = home_page(request)
         
         self.assertNotIn('Rerun the unit test', response.content.decode())
+    
+    def test_home_page_transfer_pending_todos_to_current_day(self):
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo='2014-12-12', archive='0')
+        ToDo.objects.create(item='Fix code', added_by='1', date_todo='2014-12-13', archive='0')
+        ToDo.objects.create(item='Rerun the unit test', added_by='1', date_todo='2014-12-13', archive='0')
+
+        request = HttpRequest()
+        response = home_page(request)
+        
+        self.assertIn('Code unit test', response.content.decode())
 
 
 class TodoModelTest(TestCase):
