@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from todo.views import home_page
 
-from todo.models import todo
+from todo.models import ToDo
 
 class HomePageTest(TestCase):
 
@@ -16,7 +16,10 @@ class HomePageTest(TestCase):
         current_date = time.strftime('%Y-%m-%d')
         self.assertIn(current_date, response.content.decode())
     
-    def test_home_page_if_it_gets_list_of_todo(self):
+    def test_home_page_displays_added_todo(self):
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
+        
         request = HttpRequest()
         response = home_page(request)
-        self.assertEqual(Todo.objects.count(), 1)
+        
+        self.assertIn('Code unit test', response.content.decode())

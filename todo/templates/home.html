@@ -2,5 +2,18 @@
     <head></head>
     <body>
         Current date is {{ curr_date }}
+        
+        <table>
+            
+            {% for todo in todoList %}
+                <tr>
+                    <td>{{ todo.item }}</td>
+                    <td>{{ todo.added_by }}</td>
+                    <td>{{ todo.date_todo }}</td>
+                    <td>{{ todo.archive }}</td>
+                </tr>
+            {% endfor %}
+            
+        </table>
     </body>
 </html>
