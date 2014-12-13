@@ -23,3 +23,13 @@ class HomePageTest(TestCase):
         response = home_page(request)
         
         self.assertIn('Code unit test', response.content.decode())
+
+    def test_home_page_displays_todolist(self):
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
+        ToDo.objects.create(item='Fix code', added_by='1', date_todo='2014-12-13', archive='0')
+        
+        request = HttpRequest()
+        response = home_page(request)
+        
+        self.assertIn('Code unit test', response.content.decode())
+        self.assertIn('Fix code', response.content.decode())
