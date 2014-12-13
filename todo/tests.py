@@ -54,7 +54,16 @@ class HomePageTest(TestCase):
         self.assertIn('Fix code', response.content.decode())
         self.assertIn('Rerun the unit test', response.content.decode())
         self.assertNotIn('Refactor', response.content.decode())
+        
+        self.assertEqual(ToDo.objects.filter(date_todo=today).count(), 2);
     
+    def test_home_page_check_for_cancel_and_done_labels(self):
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo='2014-12-13', archive='2')
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo='2014-12-13', archive='1')
+        request = HttpRequest()
+        response = home_page(request)
+        self.assertIn('Cancelled', response.content.decode())
+        self.assertIn('Done', response.content.decode())
         
 
 class TodoModelTest(TestCase):

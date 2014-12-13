@@ -4,5 +4,5 @@ from django.db import models
 class ToDo(models.Model):
     item = models.TextField(default='')
     added_by = models.IntegerField()
-    date_todo = models.DateTimeField(auto_now=False)
+    date_todo = models.DateField(auto_now=False)
     archive = models.IntegerField()
