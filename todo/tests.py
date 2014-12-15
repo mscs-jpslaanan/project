@@ -10,6 +10,13 @@ from todo.models import ToDo
 
 from django.test.client import Client
 
+from django.conf import settings
+from django.utils.importlib import import_module
+
+admin_username = "patster"
+admin_password = "patster"
+
+
 class HomePageTest(TestCase):
 
     def test_home_page_display_current_date(self):

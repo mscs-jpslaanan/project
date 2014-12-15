@@ -6,3 +6,6 @@ class ToDo(models.Model):
     added_by = models.IntegerField()
     date_todo = models.DateField(auto_now=False)
     archive = models.IntegerField()
+    
+    def __unicode__(self):
+        return self.item
