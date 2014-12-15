@@ -4,8 +4,11 @@ from django.test import TestCase
 
 
 from todo.views import home_page, tick_done, tick_cancel
+from project.views import login, auth_view
 
 from todo.models import ToDo
+
+from django.test.client import Client
 
 class HomePageTest(TestCase):
 
@@ -66,15 +69,7 @@ class HomePageTest(TestCase):
         response = home_page(request)
         self.assertIn('Cancelled', response.content.decode())
         self.assertIn('Done', response.content.decode())
-
-class SessionOperationsTest(TestCase):
-    def test_login_logout(self):
-        request = HttpRequest()
-        response = login(request, username, password)
-        self.assertIn("You are logged in as: ", response.content.decode())
-        self.assertIn(username, response.content.decode())
     
-
         
 class TodoOperationsTest(TestCase):
     def test_tick_as_done(self):
