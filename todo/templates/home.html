@@ -19,8 +19,8 @@
                     <td>{{ todo.date_todo }}</td>
                     {% if todo.archive == 0 %}
                         <td>
-                            <a href="tick_done/{{ todo.id }}">Done</a>
-                            <a href="tick_cancel/{{ todo.id }}">Cancel</a>
+                            <a href="/todo/tick_done/{{ todo.id }}">Done</a>
+                            <a href="/todo/tick_cancel/{{ todo.id }}">Cancel</a>
                         </td>
                     {% elif todo.archive == 1 %}
                         <td>Done</td>
