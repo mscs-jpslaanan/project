@@ -1,20 +1,27 @@
-<html>
-    <head></head>
-    <body>
-        Current date is {{ curr_date }}
+{% extends "base.html" %}
+
+{% block content %}
         
-        <h1>Current to do list</h1>
         
-        <table border="1">
-            
+        <h1>To do list</h1>
+        
+        <table border="1" width="100%">
+            <tr>
+                <th>Description</th>
+                <th>Added By</th>
+                <th>To do Date</th>
+                <th></th>
+            </tr>
             {% for todo in todoList %}
                 <tr>
                     <td>{{ todo.item }}</td>
                     <td>{{ todo.added_by }}</td>
                     <td>{{ todo.date_todo }}</td>
                     {% if todo.archive == 0 %}
-                        <td><a href="tick_done/{{ todo.id }}">Done</a></td>
-                        <td><a href="tick_cancel/{{ todo.id }}">Cancel</a></td>
+                        <td>
+                            <a href="tick_done/{{ todo.id }}">Done</a>
+                            <a href="tick_cancel/{{ todo.id }}">Cancel</a>
+                        </td>
                     {% elif todo.archive == 1 %}
                         <td>Done</td>
                     {% elif todo.archive == 2 %}
@@ -24,5 +31,4 @@
             {% endfor %}
             
         </table>
-    </body>
-</html>
+{% endblock %}
