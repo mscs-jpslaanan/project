@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done
+from todo.views import home_page, tick_done, tick_cancel
 
 from todo.models import ToDo
 
@@ -58,24 +58,39 @@ class HomePageTest(TestCase):
         self.assertEqual(ToDo.objects.filter(date_todo=today).count(), 2);
     
     def test_home_page_check_for_cancel_and_done_labels(self):
-        ToDo.objects.create(item='Code unit test 1', added_by='1', date_todo='2014-12-13', archive='2')
-        ToDo.objects.create(item='Code unit test 2', added_by='1', date_todo='2014-12-13', archive='1')
+        import datetime
+        today = datetime.date.today()
+        ToDo.objects.create(item='Code unit test 1', added_by='1', date_todo=today, archive='2')
+        ToDo.objects.create(item='Code unit test 2', added_by='1', date_todo=today, archive='1')
         request = HttpRequest()
         response = home_page(request)
         self.assertIn('Cancelled', response.content.decode())
         self.assertIn('Done', response.content.decode())
+
+class SessionOperationsTest(TestCase):
+    def test_login_logout(self):
+        request = HttpRequest()
+        response = login(request, username, password)
+        self.assertIn("You are logged in as: ", response.content.decode())
+        self.assertIn(username, response.content.decode())
+    
+
         
 class TodoOperationsTest(TestCase):
     def test_tick_as_done(self):
-        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
+        import datetime
+        today = datetime.date.today()
+        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
         response = tick_done(request, 5)
         self.assertEqual(ToDo.objects.get(id=5).archive, 1)
 
     def test_tick_as_cancelled(self):
-        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
+        import datetime
+        today = datetime.date.today()
+        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
-        response = tick_done(request, 5)
+        response = tick_cancel(request, 5)
         self.assertEqual(ToDo.objects.get(id=5).archive, 2)
         
         

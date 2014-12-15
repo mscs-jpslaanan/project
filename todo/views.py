@@ -18,7 +18,6 @@ def home_page(request):
                             }
                   )
 
-    
 def tick_done(request, todoID=1):
     ToDo.objects.filter(id=todoID).update(archive=1)
     return redirect('home')
