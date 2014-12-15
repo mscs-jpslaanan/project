@@ -10,6 +10,6 @@ urlpatterns = patterns('',
     url(r'^accounts/auth/$', 'project.views.auth_view'),
     url(r'^accounts/logout/$', 'project.views.logout'),
     url(r'^accounts/invalid/$', 'project.views.invalid_login'),
-    
+    url(r'^accounts/unauthorized/$', 'project.views.unauthorized'),
     #url(r'^admin/', include(admin.site.urls)),
 )
