@@ -18,12 +18,18 @@ def home_page(request):
     
     current_todo_list = ToDo.objects.filter(date_todo=current_date)
     
-    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    #fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    
+    #return render(request, 'home.html', 
+    #                        {'curr_date': current_date,
+    #                        'todoList': current_todo_list,
+    #                        'full_name':fullname
+    #                       }
+    #              )
     
     return render(request, 'home.html', 
                             {'curr_date': current_date,
-                            'todoList': current_todo_list,
-                            'full_name':fullname
+                            'todoList': current_todo_list
                             }
                   )
 
@@ -55,14 +61,18 @@ def add(request):
     
     args['form'] = form
     
-    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    #fullname = request.session['first_name'] + ' ' + request.session['last_name']
     
     import time
     current_date = time.strftime('%Y-%m-%d')
     
+    #return render_to_response('add_todo.html', {'form':form, 
+    #                                            'full_name':fullname,
+    #                                            'curr_date': current_date
+    #                                            }
+    #                          )
+    
     return render_to_response('add_todo.html', {'form':form, 
-                                                'full_name':fullname,
                                                 'curr_date': current_date
                                                 }
                               )
-    

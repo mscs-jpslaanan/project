@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel
+from todo.views import home_page, tick_done, tick_cancel, add
 from project.views import login, auth_view
 
 from todo.models import ToDo
@@ -12,10 +12,6 @@ from django.test.client import Client
 
 from django.conf import settings
 from django.utils.importlib import import_module
-
-admin_username = "patster"
-admin_password = "patster"
-
 
 class HomePageTest(TestCase):
 
@@ -94,7 +90,19 @@ class TodoOperationsTest(TestCase):
         request = HttpRequest()
         response = tick_cancel(request, 5)
         self.assertEqual(ToDo.objects.get(id=5).archive, 2)
+
+class AddToDoFormTest(TestCase):
+    def test_is_todo_form_required_fields_present(self):
+        request = HttpRequest()
+        response = add(request)
+        self.assertIn("Item:", response.content.decode())
+        self.assertIn("textarea", response.content.decode())
+        self.assertIn("Date todo:", response.content.decode())
+        self.assertIn("type=\"text\"", response.content.decode())
+        self.assertIn("<input type='submit' name='submit' value='Add to do item' />", response.content.decode())
         
+        
+
         
 class TodoModelTest(TestCase):
 
