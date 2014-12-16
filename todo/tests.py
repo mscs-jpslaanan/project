@@ -17,9 +17,19 @@ class HomePageTest(TestCase):
 
     def test_home_page_display_current_date(self):
         request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        
+        request.session['id'] = '1';
+        request.session['first_name'] = 'Patrick';
+        request.session['last_name'] = 'La-anan';
+  
         response = home_page(request)
+        
         import time
         current_date = time.strftime('%Y-%m-%d')
+        
         self.assertIn(current_date, response.content.decode())
 
     def test_home_page_displays_todolist(self):
@@ -96,7 +106,6 @@ class AddToDoFormTest(TestCase):
         request = HttpRequest()
         response = add(request)
         self.assertIn("Item:", response.content.decode())
-        self.assertIn("textarea", response.content.decode())
         self.assertIn("Date todo:", response.content.decode())
         self.assertIn("type=\"text\"", response.content.decode())
         self.assertIn("<input type='submit' name='submit' value='Add to do item' />", response.content.decode())
