@@ -20,7 +20,6 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        
         request.session['id'] = '1';
         request.session['first_name'] = 'Patrick';
         request.session['last_name'] = 'La-anan';
@@ -37,6 +36,13 @@ class HomePageTest(TestCase):
         ToDo.objects.create(item='Fix code', added_by='1', date_todo='2014-12-13', archive='0')
         
         request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = '1';
+        request.session['first_name'] = 'Patrick';
+        request.session['last_name'] = 'La-anan';
+        
         response = home_page(request)
         
         self.assertIn('Code unit test', response.content.decode())
