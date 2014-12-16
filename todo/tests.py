@@ -169,6 +169,8 @@ class SecurityTest(TestCase):
     def test_if_login_works(self):
         c = Client()
         response = c.post('/login/', {'username':admin_username, 'password':admin_password})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['location'], '/todo/home')
         
     
     def test_logout_if_session_variables_are_unset(self):
