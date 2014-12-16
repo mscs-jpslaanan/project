@@ -69,6 +69,12 @@ class HomePageTest(TestCase):
         ToDo.objects.create(item='Refactor', added_by='1', date_todo=tomorrow, archive='0')
 
         request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = '1';
+        request.session['first_name'] = 'Patrick';
+        request.session['last_name'] = 'La-anan';
         response = home_page(request)
         
         self.assertNotIn('Code unit test 1', response.content.decode())
@@ -85,6 +91,12 @@ class HomePageTest(TestCase):
         ToDo.objects.create(item='Code unit test 1', added_by='1', date_todo=today, archive='2')
         ToDo.objects.create(item='Code unit test 2', added_by='1', date_todo=today, archive='1')
         request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = '1';
+        request.session['first_name'] = 'Patrick';
+        request.session['last_name'] = 'La-anan';
         response = home_page(request)
         self.assertIn('Cancelled', response.content.decode())
         self.assertIn('Done', response.content.decode())
@@ -96,7 +108,13 @@ class TodoOperationsTest(TestCase):
         today = datetime.date.today()
         ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
+        
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = '1';
         response = tick_done(request, 5)
+        
         self.assertEqual(ToDo.objects.get(id=5).archive, 1)
 
     def test_tick_as_cancelled(self):
@@ -104,12 +122,26 @@ class TodoOperationsTest(TestCase):
         today = datetime.date.today()
         ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
+        
+        #session
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = '1';
+        
         response = tick_cancel(request, 5)
         self.assertEqual(ToDo.objects.get(id=5).archive, 2)
 
 class AddToDoFormTest(TestCase):
     def test_is_todo_form_required_fields_present(self):
         request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = '1';
+        request.session['first_name'] = 'Patrick';
+        request.session['last_name'] = 'La-anan';
+        response = tick_done(request, 5)
         response = add(request)
         self.assertIn("Item:", response.content.decode())
         self.assertIn("Date todo:", response.content.decode())
