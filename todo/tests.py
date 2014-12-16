@@ -100,10 +100,7 @@ class AddToDoFormTest(TestCase):
         self.assertIn("Date todo:", response.content.decode())
         self.assertIn("type=\"text\"", response.content.decode())
         self.assertIn("<input type='submit' name='submit' value='Add to do item' />", response.content.decode())
-        
-        
-
-        
+             
 class TodoModelTest(TestCase):
 
     def test_saving_and_retrieving_todoList(self):

@@ -51,7 +51,10 @@ def add(request):
     if request.POST:
         form = ToDoForm(request.POST)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.added_by = request.session['id']
+            instance.archive = 0
+            instance.save()
         return HttpResponseRedirect('/todo/home')
     else:
         form = ToDoForm()
@@ -60,6 +63,7 @@ def add(request):
     args.update( csrf(request) )
     
     args['form'] = form
+    
     
     #fullname = request.session['first_name'] + ' ' + request.session['last_name']
     
@@ -72,7 +76,7 @@ def add(request):
     #                                            }
     #                          )
     
-    return render_to_response('add_todo.html', {'form':form, 
-                                                'curr_date': current_date
-                                                }
+    args['curr_date'] = current_date
+    
+    return render_to_response('add_todo.html', args
                               )
