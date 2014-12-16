@@ -3,8 +3,8 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel, add
-from project.views import login, auth_view
+from todo.views import home_page, tick_done, tick_cancel, addtodo
+from project.views import login, auth_view, logout
 
 from todo.models import ToDo
 
@@ -13,6 +13,14 @@ from django.test.client import Client
 from django.conf import settings
 from django.utils.importlib import import_module
 
+admin_username = "patster"
+admin_password = "patster"
+admin_id = "1"
+admin_is_superuser = "1"
+admin_first_name = "patrick"
+admin_last_name = "la-anan"
+
+
 class HomePageTest(TestCase):
 
     def test_home_page_display_current_date(self):
@@ -20,9 +28,9 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = '1';
-        request.session['first_name'] = 'Patrick';
-        request.session['last_name'] = 'La-anan';
+        request.session['id'] = admin_id
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
   
         response = home_page(request)
         
@@ -39,9 +47,9 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = '1';
-        request.session['first_name'] = 'Patrick';
-        request.session['last_name'] = 'La-anan';
+        request.session['id'] = admin_id
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
         
         response = home_page(request)
         
@@ -67,16 +75,15 @@ class HomePageTest(TestCase):
         
         #Future
         ToDo.objects.create(item='Refactor', added_by='1', date_todo=tomorrow, archive='0')
-
+        
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = '1';
-        request.session['first_name'] = 'Patrick';
-        request.session['last_name'] = 'La-anan';
+        request.session['id'] = admin_id
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
         response = home_page(request)
-        
         self.assertNotIn('Code unit test 1', response.content.decode())
         self.assertNotIn('Code unit test 2', response.content.decode())
         self.assertIn('Fix code', response.content.decode())
@@ -94,9 +101,9 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = '1';
-        request.session['first_name'] = 'Patrick';
-        request.session['last_name'] = 'La-anan';
+        request.session['id'] = admin_id
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
         response = home_page(request)
         self.assertIn('Cancelled', response.content.decode())
         self.assertIn('Done', response.content.decode())
@@ -108,13 +115,11 @@ class TodoOperationsTest(TestCase):
         today = datetime.date.today()
         ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
-        
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = '1';
         response = tick_done(request, 5)
-        
         self.assertEqual(ToDo.objects.get(id=5).archive, 1)
 
     def test_tick_as_cancelled(self):
@@ -122,13 +127,10 @@ class TodoOperationsTest(TestCase):
         today = datetime.date.today()
         ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
-        
-        #session
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = '1';
-        
         response = tick_cancel(request, 5)
         self.assertEqual(ToDo.objects.get(id=5).archive, 2)
 
@@ -138,16 +140,98 @@ class AddToDoFormTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = '1';
-        request.session['first_name'] = 'Patrick';
-        request.session['last_name'] = 'La-anan';
+        request.session['id'] = admin_id
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
         response = tick_done(request, 5)
-        response = add(request)
+        response = addtodo(request)
         self.assertIn("Item:", response.content.decode())
         self.assertIn("Date todo:", response.content.decode())
         self.assertIn("type=\"text\"", response.content.decode())
         self.assertIn("<input type='submit' name='submit' value='Add to do item' />", response.content.decode())
-             
+    
+    def test_todo_is_added_in_the_list(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        response = tick_done(request, 5)
+        response = addtodo(request)
+        self.assertIn("Item:", response.content.decode())
+        self.assertIn("Date todo:", response.content.decode())
+        self.assertIn("type=\"text\"", response.content.decode())
+        self.assertIn("<input type='submit' name='submit' value='Add to do item' />", response.content.decode())
+
+class SecurityTest(TestCase):
+    def test_if_login_works(self):
+        c = Client()
+        response = c.post('/login/', {'username':admin_username, 'password':admin_password})
+        
+    
+    def test_logout_if_session_variables_are_unset(self):
+        request = HttpRequest()
+        
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        
+        request.session['username'] = admin_username
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        
+        response = logout(request)
+        
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        
+        response = home_page(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = addtodo(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = tick_done(request, 5)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = tick_cancel(request, 5)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+class LoginLogoutPageTest(TestCase):
+    def test_login_page_required_fields_are_present(self):
+        request = HttpRequest()
+        response = login(request)
+        self.assertIn("User name:", response.content.decode())
+        self.assertIn("Password:", response.content.decode())
+        self.assertIn("type=\"text\"", response.content.decode())
+        self.assertIn("type=\"password\"", response.content.decode())
+        
+        
+    def test_logout_page_if_prompt_is_present(self):
+        request = HttpRequest()
+        
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        
+        request.session['username'] = admin_username
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        
+        response = logout(request)
+        self.assertIn("Logged out!", response.content.decode())
+        
 class TodoModelTest(TestCase):
 
     def test_saving_and_retrieving_todoList(self):

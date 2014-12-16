@@ -41,7 +41,10 @@ def tick_cancel(request, todoID=1):
     ToDo.objects.filter(id=todoID).update(archive=2)
     return redirect('home')
 
-def add(request):
+def addtodo(request):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+    
     if request.POST:
         form = ToDoForm(request.POST)
         if form.is_valid():
