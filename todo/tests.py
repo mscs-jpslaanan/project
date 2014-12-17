@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users, delete_user, backoperations, view_weekly, view_monthly
+from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users, delete_user, backoperations, view_weekly, view_monthly, add_recurring_todo
 
 from project.views import login, auth_view, logout
 

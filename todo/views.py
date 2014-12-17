@@ -5,13 +5,41 @@ from django.template import Context
 from todo.models import ToDo
 from django.contrib.auth.models import User
 
-from todo.forms import ToDoForm, AddUserForm
+from todo.forms import ToDoForm, AddUserForm, AddRecurringToDoForm
 from django.contrib.auth.forms import UserCreationForm
 from django.core.context_processors import csrf
 
 from django.utils.timezone import utc
 
 import datetime
+
+
+def add_recurring_todo(request):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+    
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    
+    if request.method == "POST":
+        form = AddRecurringToDoForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.is_superuser = 0
+            instance.is_staff = 1
+            instance.is_active = 1
+            instance.save()
+            return HttpResponseRedirect('/todo/home')
+            
+    args = {}
+    args.update( csrf(request) )
+    args['form'] = AddRecurringToDoForm()      
+    args['curr_date'] = current_date
+    args['full_name'] = fullname
+    
+    return render_to_response('addrecurringtodo.html', args)
+    
 
 def delete_user(request, userID):
     if 'id' not in request.session:
@@ -44,6 +72,8 @@ def view_users(request):
                            }
                   )
 
+
+                  
 def add_user(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
