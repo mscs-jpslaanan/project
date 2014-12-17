@@ -121,6 +121,40 @@ def backoperations(request):
     
     return HttpResponseRedirect('/todo/home')
 
+def view_monthly(request, today = datetime.date.today()):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+    
+    first_day_current = datetime.datetime(today.year, today.month, 1)
+    
+    if(today.month == 12):
+        first_day_next_month = datetime.datetime(today.year+1, 1, 1)
+    else:
+        first_day_next_month = datetime.datetime(today.year, today.month+1, 1)
+        
+    one_day = datetime.timedelta(days=1)
+    last_day_current = first_day_next_month - one_day
+    
+    
+    #last_day_previous = first_day_current - datetime.   timedelta(days=1)
+    #first_day_previous = datetime.datetime(last_day_previous.year, last_day_previous.month, 1)
+
+        
+    monthly_todo_list = ToDo.objects.filter(date_todo__lte=last_day_current).filter(date_todo__gte=first_day_current).filter(added_by=request.session['id'])
+    
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    
+    return render(request, 'view_monthly.html', 
+                            {'curr_date': today,
+                            'end_month_day':last_day_current,
+                            'start_month_day':first_day_current,
+                            'todoList': monthly_todo_list,
+                            'full_name':fullname,
+                            'is_administrator':request.session['is_superuser']
+                           }
+                  )    
+    
+    
 def view_weekly(request, date_today = datetime.date.today()):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
