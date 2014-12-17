@@ -460,11 +460,25 @@ class SecurityTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/accounts/unauthorized')
         
-        response = tick_done(request, 5)
+        random_id = 1000
+        
+        response = tick_done(request, random_id)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/accounts/unauthorized')
         
-        response = tick_cancel(request, 5)
+        response = tick_cancel(request, random_id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = view_users(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = add_user(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = delete_user(request, random_id)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/accounts/unauthorized')
         

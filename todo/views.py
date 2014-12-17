@@ -111,7 +111,7 @@ def home_page(request):
     #REVISE CODE HERE
     ToDo.objects.filter(date_todo__lt=current_date).filter(archive='0').update(date_todo=current_date)
     
-    current_todo_list = ToDo.objects.filter(date_todo=current_date)
+    current_todo_list = ToDo.objects.filter(date_todo=current_date).filter(added_by=request.session['id'])
     
     fullname = request.session['first_name'] + ' ' + request.session['last_name']
     
