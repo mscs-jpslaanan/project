@@ -84,6 +84,30 @@ class AdministratorAccessTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/todo/view_users')
         
+    def test_view_user_link_not_visible_to_other_user(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = other_is_superuser
+        request.session['first_name'] = other_first_name
+        request.session['last_name'] = other_last_name
+        response = home_page(request)
+        self.assertNotIn("View Users", response.content.decode())
+        
+    def test_view_user_link_visible_to_administrator(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        response = home_page(request)
+        self.assertIn("View Users", response.content.decode())
+        
 class ViewUsersPageTest(TestCase):
     
     def test_is_list_of_users_displayed(self):
