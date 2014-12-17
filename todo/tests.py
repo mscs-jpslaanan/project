@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users
+from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users, delete_user
 from project.views import login, auth_view, logout
 
 from todo.models import ToDo
@@ -108,7 +108,7 @@ class ViewUsersPageTest(TestCase):
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        response = delete_user(request, id)
+        response = delete_user(request, other_id)
         
         
     

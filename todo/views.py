@@ -11,6 +11,13 @@ from django.core.context_processors import csrf
 
 from django.utils.timezone import utc
 
+def delete_user(request, userID):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+        
+    User.objects.filter(id=userID).delete()
+    return redirect('/todo/view_users')
+
 def view_users(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
@@ -41,7 +48,7 @@ def add_user(request):
         if form.is_valid():
             instance = form.save(commit=False)
             instance.is_superuser = 0
-            instance.is_staff = 0
+            instance.is_staff = 1
             instance.is_active = 1
             instance.save()
             return HttpResponseRedirect('/todo/view_users')
@@ -103,14 +110,14 @@ def home_page(request):
                            }
                   )
 
-def tick_done(request, todoID=1):
+def tick_done(request, todoID):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
         
     ToDo.objects.filter(id=todoID).update(archive=1)
     return redirect('home')
 
-def tick_cancel(request, todoID=1):
+def tick_cancel(request, todoID):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
         
