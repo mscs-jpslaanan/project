@@ -229,6 +229,23 @@ class AddUserPageTest(TestCase):
     
 class HomePageTest(TestCase):
 
+    def test_home_page_displays_only_todos_added(self):
+        import datetime
+        today = datetime.date.today()
+        ToDo.objects.create(item='Code unit test', added_by=admin_id, date_todo=today, archive='0')
+        ToDo.objects.create(item='Fix code', added_by=other_id, date_todo=today, archive='0')
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        response = home_page(request)
+        self.assertIn('Code unit test', response.content.decode())
+        self.assertNotIn('Fix code', response.content.decode())
+
     def test_home_page_display_current_date(self):
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
