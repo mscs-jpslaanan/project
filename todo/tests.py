@@ -36,6 +36,9 @@ other_email = "otheruser@otheruser.com"
 other_is_staff = 1
 other_is_active = 1
 
+import datetime
+today = datetime.date.today()
+
 
 class AdministratorAccessTest(TestCase):
     def test_otheruser_not_access_user_management_modules(self):
@@ -160,7 +163,7 @@ class ViewUsersPageTest(TestCase):
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         import datetime
-        User.objects.create(id=admin_id, password=admin_password, last_login=datetime.datetime.now(), is_superuser=admin_is_superuser, first_name=admin_first_name, last_name=admin_last_name, email=admin_email, is_staff=admin_is_staff, is_active=admin_is_active, date_joined=datetime.datetime.now())
+        User.objects.create(id=admin_id, password=admin_password, is_superuser=admin_is_superuser, first_name=admin_first_name, last_name=admin_last_name, email=admin_email, is_staff=admin_is_staff, is_active=admin_is_active)
         response = view_users(request)
         self.assertEqual(User.objects.all().count(), 1)
         self.assertNotIn("Delete", response.content.decode())
@@ -203,8 +206,6 @@ class AddUserPageTest(TestCase):
         
     def test_if_user_added(self):
         request = HttpRequest()
-        import datetime
-        today = datetime.date.today()
         request.method = "POST"
         request.POST["username"]=other_username
         request.POST["password1"]=other_password
@@ -230,8 +231,6 @@ class AddUserPageTest(TestCase):
 class HomePageTest(TestCase):
 
     def test_home_page_displays_only_todos_added(self):
-        import datetime
-        today = datetime.date.today()
         ToDo.objects.create(item='Code unit test', added_by=admin_id, date_todo=today, archive='0')
         ToDo.objects.create(item='Fix code', added_by=other_id, date_todo=today, archive='0')
         request = HttpRequest()
@@ -245,7 +244,6 @@ class HomePageTest(TestCase):
         response = home_page(request)
         self.assertIn('Code unit test', response.content.decode())
         self.assertNotIn('Fix code', response.content.decode())
-        
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -273,11 +271,9 @@ class HomePageTest(TestCase):
         self.assertIn(current_date, response.content.decode())
 
     def test_home_page_displays_todolist(self):
-        ToDo.objects.create(item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
-        ToDo.objects.create(item='Fix code', added_by='1', date_todo='2014-12-13', archive='0')
-        
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo=today, archive='0')
+        ToDo.objects.create(item='Fix code', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
-        
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
@@ -285,15 +281,12 @@ class HomePageTest(TestCase):
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        
         response = home_page(request)
-        
         self.assertIn('Code unit test', response.content.decode())
         self.assertIn('Fix code', response.content.decode())
         
     def test_home_page_displays_prompt_on_empty_todolist(self):
         request = HttpRequest()
-        
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
@@ -301,15 +294,11 @@ class HomePageTest(TestCase):
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        
         response = home_page(request)
-        
         self.assertIn('To do list is empty', response.content.decode())
         
     
     def test_home_page_transfer_pending_todos_to_current_day(self):
-        import datetime
-        today = datetime.date.today()
         one_day = datetime.timedelta(days=1)
         yesterday = today - one_day
         tomorrow = today + one_day
@@ -341,12 +330,9 @@ class HomePageTest(TestCase):
         self.assertIn('Fix code', response.content.decode())
         self.assertIn('Rerun the unit test', response.content.decode())
         self.assertNotIn('Refactor', response.content.decode())
-        
         self.assertEqual(ToDo.objects.filter(date_todo=today).count(), 2);
     
     def test_home_page_check_for_cancel_and_done_labels(self):
-        import datetime
-        today = datetime.date.today()
         ToDo.objects.create(item='Code unit test 1', added_by='1', date_todo=today, archive='2')
         ToDo.objects.create(item='Code unit test 2', added_by='1', date_todo=today, archive='1')
         request = HttpRequest()
@@ -364,8 +350,6 @@ class HomePageTest(TestCase):
         
 class TodoOperationsTest(TestCase):
     def test_tick_as_done(self):
-        import datetime
-        today = datetime.date.today()
         ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
@@ -376,8 +360,6 @@ class TodoOperationsTest(TestCase):
         self.assertEqual(ToDo.objects.get(id=5).archive, 1)
 
     def test_tick_as_cancelled(self):
-        import datetime
-        today = datetime.date.today()
         ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
@@ -511,8 +493,8 @@ class LoginLogoutPageTest(TestCase):
 class TodoModelTest(TestCase):
 
     def test_saving_and_retrieving_todoList(self):
-        ToDo.objects.create(item='Code unit test', added_by='1', date_todo='2014-12-13', archive='0')
-        ToDo.objects.create(item='Fix code', added_by='1', date_todo='2014-12-13', archive='0')
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo=today, archive='0')
+        ToDo.objects.create(item='Fix code', added_by='1', date_todo=today, archive='0')
         saved_todos = ToDo.objects.all()
         self.assertEqual(saved_todos.count(), 2)
         first_saved_todo = saved_todos[0]
