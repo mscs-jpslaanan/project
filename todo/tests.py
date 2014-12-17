@@ -37,7 +37,8 @@ other_is_staff = 1
 other_is_active = 1
 
 import datetime
-today = datetime.date.today()
+TODAY = datetime.date.TODAY()
+
 
 
 class AdministratorAccessTest(TestCase):
@@ -231,8 +232,8 @@ class AddUserPageTest(TestCase):
 class HomePageTest(TestCase):
 
     def test_home_page_displays_only_todos_added(self):
-        ToDo.objects.create(item='Code unit test', added_by=admin_id, date_todo=today, archive='0')
-        ToDo.objects.create(item='Fix code', added_by=other_id, date_todo=today, archive='0')
+        ToDo.objects.create(item='Code unit test', added_by=admin_id, date_todo=TODAY, archive='0')
+        ToDo.objects.create(item='Fix code', added_by=other_id, date_todo=TODAY, archive='0')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -271,8 +272,8 @@ class HomePageTest(TestCase):
         self.assertIn(current_date, response.content.decode())
 
     def test_home_page_displays_todolist(self):
-        ToDo.objects.create(item='Code unit test', added_by='1', date_todo=today, archive='0')
-        ToDo.objects.create(item='Fix code', added_by='1', date_todo=today, archive='0')
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo=TODAY, archive='0')
+        ToDo.objects.create(item='Fix code', added_by='1', date_todo=TODAY, archive='0')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -300,8 +301,8 @@ class HomePageTest(TestCase):
     
     def test_home_page_transfer_pending_todos_to_current_day(self):
         one_day = datetime.timedelta(days=1)
-        yesterday = today - one_day
-        tomorrow = today + one_day
+        yesterday = TODAY - one_day
+        tomorrow = TODAY + one_day
         
         #Done
         ToDo.objects.create(item='Code unit test 1', added_by='1', date_todo=yesterday, archive='1')
@@ -311,7 +312,7 @@ class HomePageTest(TestCase):
         ToDo.objects.create(item='Fix code', added_by='1', date_todo=yesterday, archive='0')
         
         #Current
-        ToDo.objects.create(item='Rerun the unit test', added_by='1', date_todo=today, archive='0')
+        ToDo.objects.create(item='Rerun the unit test', added_by='1', date_todo=TODAY, archive='0')
         
         #Future
         ToDo.objects.create(item='Refactor', added_by='1', date_todo=tomorrow, archive='0')
@@ -330,11 +331,11 @@ class HomePageTest(TestCase):
         self.assertIn('Fix code', response.content.decode())
         self.assertIn('Rerun the unit test', response.content.decode())
         self.assertNotIn('Refactor', response.content.decode())
-        self.assertEqual(ToDo.objects.filter(date_todo=today).count(), 2);
+        self.assertEqual(ToDo.objects.filter(date_todo=TODAY).count(), 2);
     
     def test_home_page_check_for_cancel_and_done_labels(self):
-        ToDo.objects.create(item='Code unit test 1', added_by='1', date_todo=today, archive='2')
-        ToDo.objects.create(item='Code unit test 2', added_by='1', date_todo=today, archive='1')
+        ToDo.objects.create(item='Code unit test 1', added_by='1', date_todo=TODAY, archive='2')
+        ToDo.objects.create(item='Code unit test 2', added_by='1', date_todo=TODAY, archive='1')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -350,7 +351,7 @@ class HomePageTest(TestCase):
         
 class TodoOperationsTest(TestCase):
     def test_tick_as_done(self):
-        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
+        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=TODAY, archive='0')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -360,7 +361,7 @@ class TodoOperationsTest(TestCase):
         self.assertEqual(ToDo.objects.get(id=5).archive, 1)
 
     def test_tick_as_cancelled(self):
-        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=today, archive='0')
+        ToDo.objects.create(id='5', item='Code unit test', added_by='1', date_todo=TODAY, archive='0')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -394,9 +395,9 @@ class AddToDoFormTest(TestCase):
         request = HttpRequest()
         request.method = "POST"
         import datetime
-        today = datetime.date.today()
+        TODAY = datetime.date.TODAY()
         request.POST["item"] = "Code unit test"
-        request.POST["date_todo"] = today
+        request.POST["date_todo"] = TODAY
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
@@ -493,8 +494,8 @@ class LoginLogoutPageTest(TestCase):
 class TodoModelTest(TestCase):
 
     def test_saving_and_retrieving_todoList(self):
-        ToDo.objects.create(item='Code unit test', added_by='1', date_todo=today, archive='0')
-        ToDo.objects.create(item='Fix code', added_by='1', date_todo=today, archive='0')
+        ToDo.objects.create(item='Code unit test', added_by='1', date_todo=TODAY, archive='0')
+        ToDo.objects.create(item='Fix code', added_by='1', date_todo=TODAY, archive='0')
         saved_todos = ToDo.objects.all()
         self.assertEqual(saved_todos.count(), 2)
         first_saved_todo = saved_todos[0]
