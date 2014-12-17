@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel, addtodo, adduser
+from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users
 from project.views import login, auth_view, logout
 
 from todo.models import ToDo
@@ -41,7 +41,7 @@ class ViewUsersPageTest(TestCase):
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        response = viewusers(request)
+        response = view_users(request)
         self.assertIn("List of users", response.content.decode())
         
 class AddUserTest(TestCase):
@@ -72,7 +72,7 @@ class AddUserTest(TestCase):
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        response = adduser(request)
+        response = add_user(request)
     
         user = User.objects.get(id=other_id)
         self.assertEqual(user.id, other_id)

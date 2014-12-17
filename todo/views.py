@@ -7,6 +7,41 @@ from todo.models import ToDo
 from todo.forms import ToDoForm
 from django.core.context_processors import csrf
 
+from django.contrib.auth.models import User
+
+def view_users(request):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+        
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    
+    user_list = User.objects.all()
+    
+    
+    return render(request, 'userlist.html', 
+                            {'curr_date': current_date,
+                            'userList': user_list,
+                            'full_name':fullname
+                           }
+                  )
+
+def add_user(request):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+        
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    
+    return render(request, 'adduser.html', 
+                            {'curr_date': current_date,
+                            'full_name':fullname
+                           }
+                  )
+    
+
 def home_page(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
