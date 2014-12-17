@@ -39,7 +39,60 @@ OTHER_IS_ACTIVE = 1
 import datetime
 TODAY = datetime.date.today()
 
+class HistoryOperationsTest(TestCase):
+    def test_purge_data_after_7_days(self):
+        seven_days = datetime.timedelta(days=7)
+        eight_days = datetime.timedelta(days=8)
+        three_days = datetime.timedelta(days=3)
+        
+        eight_days_ago = TODAY - eight_days
+        seven_days_ago = TODAY - seven_days
+        three_days_ago = TODAY - three_days
+        three_days_from_today = TODAY + three_days
+        
+        item1 = 'Code unit test 1'
+        item2 = 'Code unit test 2'
+        item3 = 'Code unit test 3'
+        item4 = 'Code unit test 4'
+        item5 = 'Code unit test 5'
+        
+        ToDo.objects.create(id='1', item=item1, added_by=ADMIN_ID, date_todo=eight_days_ago, archive='1')
+        ToDo.objects.create(id='2', item=item2, added_by=ADMIN_ID, date_todo=seven_days_ago, archive='2')
+        ToDo.objects.create(id='3', item=item3, added_by=ADMIN_ID, date_todo=three_days_ago, archive='1')
+        ToDo.objects.create(id='4', item=item4, added_by=ADMIN_ID, date_todo=TODAY, archive='2')
+        ToDo.objects.create(id='5', item=item5, added_by=ADMIN_ID, date_todo=three_days_from_today, archive='1')
 
+        saved_todos = ToDo.objects.all()
+        self.assertEqual(saved_todos.count(), 5)
+        todo1 = ToDo.objects.get(id=1)
+        todo2 = ToDo.objects.get(id=2)
+        todo3 = ToDo.objects.get(id=3)
+        todo4 = ToDo.objects.get(id=4)
+        todo5 = ToDo.objects.get(id=5)
+        self.assertEqual(todo1.item, item1)
+        self.assertEqual(todo2.item, item2)
+        self.assertEqual(todo3.item, item3)
+        self.assertEqual(todo4.item, item4)
+        self.assertEqual(todo5.item, item5)
+        
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = OTHER_ID
+        request.session['is_superuser'] = OTHER_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
+        
+        response = home_page(request)
+        
+        self.assertEqual(ToDo.objects.all().count(), 4)
+        self.assertEqual(ToDo.objects.get(id=1).item, '')
+        self.assertEqual(ToDo.objects.get(id=2).item, item2)
+        self.assertEqual(ToDo.objects.get(id=3).item, item3)
+        self.assertEqual(ToDo.objects.get(id=4).item, item4)
+        self.assertEqual(ToDo.objects.get(id=5).item, item5)
+        
 
 class AdministratorAccessTest(TestCase):
     def test_otheruser_not_access_user_management_modules(self):
@@ -49,8 +102,8 @@ class AdministratorAccessTest(TestCase):
         request.session = engine.SessionStore(session_key)
         request.session['id'] = OTHER_ID
         request.session['is_superuser'] = OTHER_IS_SUPERUSER
-        request.session['first_name'] = ADMIN_FIRST_NAME
-        request.session['last_name'] = ADMIN_LAST_NAME
+        request.session['first_name'] = OTHER_FIRST_NAME
+        request.session['last_name'] = OTHER_LAST_NAME
         #view users
         response = view_users(request)
         self.assertEqual(response.status_code, 302)
@@ -93,7 +146,7 @@ class AdministratorAccessTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = ADMIN_ID
+        request.session['id'] = OTHER_ID
         request.session['is_superuser'] = OTHER_IS_SUPERUSER
         request.session['first_name'] = OTHER_FIRST_NAME
         request.session['last_name'] = OTHER_LAST_NAME
