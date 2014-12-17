@@ -31,12 +31,9 @@ class HomePageTest(TestCase):
         request.session['id'] = admin_id
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-  
         response = home_page(request)
-        
         import time
         current_date = time.strftime('%Y-%m-%d')
-        
         self.assertIn(current_date, response.content.decode())
 
     def test_home_page_displays_todolist(self):
@@ -44,6 +41,7 @@ class HomePageTest(TestCase):
         ToDo.objects.create(item='Fix code', added_by='1', date_todo='2014-12-13', archive='0')
         
         request = HttpRequest()
+        
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
@@ -134,6 +132,8 @@ class TodoOperationsTest(TestCase):
         response = tick_cancel(request, 5)
         self.assertEqual(ToDo.objects.get(id=5).archive, 2)
 
+        
+        
 class AddToDoFormTest(TestCase):
     def test_is_todo_form_required_fields_present(self):
         request = HttpRequest()
@@ -151,48 +151,51 @@ class AddToDoFormTest(TestCase):
         self.assertIn("<input type='submit' name='submit' value='Add to do item' />", response.content.decode())
     
     def test_todo_is_added_in_the_list(self):
+        saved_todos = ToDo.objects.all()
+        self.assertEqual(saved_todos.count(), 0)
         request = HttpRequest()
+        request.method = "POST"
+        import datetime
+        today = datetime.date.today()
+        request.POST["item"] = "Code unit test"
+        request.POST["date_todo"] = today
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        response = tick_done(request, 5)
         response = addtodo(request)
-        self.assertIn("Item:", response.content.decode())
-        self.assertIn("Date todo:", response.content.decode())
-        self.assertIn("type=\"text\"", response.content.decode())
-        self.assertIn("<input type='submit' name='submit' value='Add to do item' />", response.content.decode())
+        saved_todos = ToDo.objects.all()
+        self.assertEqual(saved_todos.count(), 1)
+        
 
 class SecurityTest(TestCase):
-    def test_if_login_works(self):
-        c = Client()
-        response = c.post('/login/', {'username':admin_username, 'password':admin_password})
-        self.assertEqual(response.status_code, 200)
+    def test_successful_login(self):
+        request = HttpRequest()
+        request.method = "POST"
+        request.POST["username"] = admin_username
+        request.POST["password"] = admin_password
+        response = auth_view(request)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/todo/home')
-        
     
     def test_logout_if_session_variables_are_unset(self):
         request = HttpRequest()
-        
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        
         request.session['username'] = admin_username
         request.session['id'] = admin_id
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        
         response = logout(request)
-        
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        
         response = home_page(request)
+        
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/accounts/unauthorized')
         

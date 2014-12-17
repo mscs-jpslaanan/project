@@ -5,6 +5,8 @@
 {% block content %}
         <h1>To do list</h1>
         
+        {% if todoList.count > 0 %}
+        
         <table border="1" width="100%">
             <tr>
                 <th>Description</th>
@@ -31,4 +33,9 @@
             {% endfor %}
             
         </table>
+        
+        {% else %}
+            <p>To do list is empty</p>
+        {% endif %}
+        
 {% endblock %}
