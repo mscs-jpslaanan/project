@@ -45,6 +45,7 @@ class AddRecurringTodoPage(TestCase):
     def test_recurring_todo_added(self):
         request = HttpRequest()
         request.method = "POST"
+        request.POST["item"]="Code unit test"
         request.POST["start_date"]="2014-12-17"
         request.POST["end_date"]="2014-12-20"
         engine = import_module(settings.SESSION_ENGINE)

@@ -13,7 +13,6 @@ from django.utils.timezone import utc
 
 import datetime
 
-
 def add_recurring_todo(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
@@ -25,11 +24,18 @@ def add_recurring_todo(request):
     if request.method == "POST":
         form = AddRecurringToDoForm(request.POST)
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.is_superuser = 0
-            instance.is_staff = 1
-            instance.is_active = 1
-            instance.save()
+            i = form.cleaned_data['item']
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            total_days = (end_date - start_date).days + 1 
+            
+            d = 0
+            for day_number in range(total_days):
+                deltaday = datetime.timedelta(days=d)
+                current_date = start_date + deltaday
+                ToDo.objects.create(added_by=request.session['id'], date_todo=current_date, archive=0, item=i)
+                d = d + 1
+                
             return HttpResponseRedirect('/todo/home')
             
     args = {}
