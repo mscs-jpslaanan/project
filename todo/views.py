@@ -17,8 +17,7 @@ def view_users(request):
     current_date = time.strftime('%Y-%m-%d')
     fullname = request.session['first_name'] + ' ' + request.session['last_name']
     
-    user_list = User.objects.all()
-    
+    user_list = User.objects.filter(is_active=1)
     
     return render(request, 'userlist.html', 
                             {'curr_date': current_date,

@@ -7,6 +7,7 @@ from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, vie
 from project.views import login, auth_view, logout
 
 from todo.models import ToDo
+from django.contrib.auth.models import User
 
 from django.test.client import Client
 
@@ -45,10 +46,34 @@ class ViewUsersPageTest(TestCase):
         self.assertIn("List of users", response.content.decode())
 
     def test_is_user_info_displayed(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
         import datetime
         User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
         response = view_users(request)
+        self.assertEqual(User.objects.all().count(), 1)
         self.assertIn(other_username, response.content.decode())
+    
+    def test_admistrator_has_no_delete(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        import datetime
+        User.objects.create(id=admin_id, password=admin_password, last_login=datetime.datetime.now(), is_superuser=admin_is_superuser, first_name=admin_first_name, last_name=admin_last_name, email=admin_email, is_staff=admin_is_staff, is_active=admin_is_active, date_joined=datetime.datetime.now())
+        response = view_users(request)
+        self.assertEqual(User.objects.all().count(), 1)
+        self.assertNotIn("Delete", response.content.decode())
         
         
 class AddUserTest(TestCase):
