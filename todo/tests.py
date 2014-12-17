@@ -40,6 +40,23 @@ OTHER_IS_ACTIVE = 1
 import datetime
 TODAY = datetime.date.today()
 
+class AddRecurringTodoPage(TestCase):
+    
+    def test_recurring_todo_added(self):
+        request = HttpRequest()
+        request.method = "POST"
+        request.POST["start_date"]="2014-12-17"
+        request.POST["end_date"]="2014-12-20"
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
+        response = add_recurring_todo(request)
+        self.assertEqual(ToDo.objects.all().count(), 4)
+
 class HistoryOperationsTest(TestCase):
     
     def test_purge_data_after_7_days(self):
@@ -265,14 +282,12 @@ class AddUserPageTest(TestCase):
         request.POST["username"]=OTHER_USERNAME
         request.POST["password1"]=OTHER_PASSWORD
         request.POST["password2"]=OTHER_PASSWORD
-        request.POST["last_login"]=timezone.now()
         request.POST["is_superuser"]=OTHER_IS_SUPERUSER
         request.POST["first_name"]=OTHER_FIRST_NAME
         request.POST["last_name"]=OTHER_LAST_NAME
         request.POST["email"]=OTHER_EMAIL
         request.POST["is_staff"]=OTHER_IS_STAFF
         request.POST["is_active"]=OTHER_IS_ACTIVE
-        request.POST["date_joined"]=timezone.now()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
@@ -546,14 +561,6 @@ class AddToDoFormTest(TestCase):
         
 
 class SecurityTest(TestCase):
-    def test_successful_login(self):
-        request = HttpRequest()
-        request.method = "POST"
-        request.POST["username"] = ADMIN_USERNAME
-        request.POST["password"] = ADMIN_PASSWORD
-        response = auth_view(request)
-        #self.assertEqual(response.status_code, 302)
-        #self.assertEqual(response['location'], '/todo/home')
     
     def test_logout_if_session_variables_are_unset(self):
         request = HttpRequest()
@@ -601,6 +608,14 @@ class SecurityTest(TestCase):
         self.assertEqual(response['location'], '/accounts/unauthorized')
         
         response = backoperations(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = view_weekly(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = view_monthly(request)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/accounts/unauthorized')
         
