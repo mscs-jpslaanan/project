@@ -5,6 +5,12 @@
 {% block content %}
         <h1>To do list</h1>
         
+        <p>
+            <a href="/todo/viewweekly">View weekly</a>
+            &nbsp;&nbsp;&nbsp;
+            <a href="/todo/viewmonthly">View monthly</a>
+        </p>
+        
         {% if todoList.count > 0 %}
         
         <table border="1" width="100%">

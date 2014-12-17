@@ -40,6 +40,28 @@ import datetime
 TODAY = datetime.date.today()
 
 class HistoryOperationsTest(TestCase):
+    
+    def test_display_todo_of_the_week(self):
+        item1 = 'Code unit test 1'
+        item2 = 'Code unit test 2'
+        item3 = 'Code unit test 3'
+        item4 = 'Code unit test 4'
+        item5 = 'Code unit test 5'
+        
+        ToDo.objects.create(id='1', item=item1, added_by=ADMIN_ID, date_todo='2014-12-14', archive='0')
+        ToDo.objects.create(id='2', item=item2, added_by=ADMIN_ID, date_todo='2014-12-15', archive='0')
+        ToDo.objects.create(id='3', item=item3, added_by=ADMIN_ID, date_todo='2014-12-17', archive='0')
+        ToDo.objects.create(id='4', item=item4, added_by=ADMIN_ID, date_todo='2014-12-20', archive='0')
+        ToDo.objects.create(id='5', item=item5, added_by=ADMIN_ID, date_todo='2014-12-21', archive='0')
+   
+        request = HttpRequest()
+        response = view_weekly(request)
+        self.assertNotIn(item1, response.content.decode())
+        self.assertIn(item2, response.content.decode())
+        self.assertIn(item3, response.content.decode())
+        self.assertIn(item4, response.content.decode())
+        self.assertNotIn(item5, response.content.decode())
+    
     def test_purge_data_after_7_days(self):
         seven_days = datetime.timedelta(days=7)
         eight_days = datetime.timedelta(days=8)
@@ -293,7 +315,7 @@ class HomePageTest(TestCase):
         request.session['first_name'] = OTHER_FIRST_NAME
         request.session['last_name'] = OTHER_LAST_NAME
         response = home_page(request)
-        self.assertIn("View weekly todo list", response.content.decode())
+        self.assertIn("View weekly", response.content.decode())
         
     def test_home_page_displays_view_monthly_todo_list_link(self):
         request = HttpRequest()
@@ -305,7 +327,7 @@ class HomePageTest(TestCase):
         request.session['first_name'] = OTHER_FIRST_NAME
         request.session['last_name'] = OTHER_LAST_NAME
         response = home_page(request)
-        self.assertIn("View monthly todo list", response.content.decode())
+        self.assertIn("View monthly", response.content.decode())
 
     def test_home_page_displays_only_todos_added(self):
         ToDo.objects.create(item='Code unit test', added_by=ADMIN_ID, date_todo=TODAY, archive='0')
