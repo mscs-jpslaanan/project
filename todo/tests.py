@@ -38,6 +38,8 @@ other_is_active = 1
 
 
 class ViewUsersPageTest(TestCase):
+    
+
     def test_is_list_of_users_displayed(self):
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
@@ -95,11 +97,26 @@ class ViewUsersPageTest(TestCase):
         self.assertEqual(User.objects.all().count(), 1)
         self.assertNotIn("Delete", response.content.decode())
         
+    def test_if_user_is_deleted(self):
+        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
+        self.assertEqual(User.objects.all().count(), 1)
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        response = delete_user(request, id)
         
+        
+    
+    
 class AddUserPageTest(TestCase):
     #import datetime
     #User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
-    def test_is_adduser_form_required_fields_present(self):
+    def test_if_adduser_form_required_fields_present(self):
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -116,7 +133,7 @@ class AddUserPageTest(TestCase):
         self.assertIn("Last name:", response.content.decode())
         self.assertIn("<input type='submit' name='submit' value='Add User' />", response.content.decode())
         
-    def test_is_user_added(self):
+    def test_if_user_added(self):
         request = HttpRequest()
         import datetime
         today = datetime.date.today()
@@ -142,8 +159,6 @@ class AddUserPageTest(TestCase):
         response = add_user(request)
         self.assertEqual(User.objects.all().count(), 1)
     
-
-
 class HomePageTest(TestCase):
 
     def test_home_page_display_current_date(self):
