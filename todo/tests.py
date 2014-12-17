@@ -42,6 +42,35 @@ TODAY = datetime.date.today()
 
 class HistoryOperationsTest(TestCase):
     
+    def test_display_todo_of_the_month(self):
+        item1 = 'Code unit test 1'
+        item2 = 'Code unit test 2'
+        item3 = 'Code unit test 3'
+        item4 = 'Code unit test 4'
+        item5 = 'Code unit test 5'
+        
+        ToDo.objects.create(id='1', item=item1, added_by=ADMIN_ID, date_todo='2014-11-30', archive='0')
+        ToDo.objects.create(id='2', item=item2, added_by=ADMIN_ID, date_todo='2014-12-01', archive='0')
+        ToDo.objects.create(id='3', item=item3, added_by=ADMIN_ID, date_todo='2014-12-17', archive='0')
+        ToDo.objects.create(id='4', item=item4, added_by=ADMIN_ID, date_todo='2014-12-31', archive='0')
+        ToDo.objects.create(id='5', item=item5, added_by=ADMIN_ID, date_todo='2015-01-01', archive='0')
+   
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
+        
+        response = view_monthly(request, datetime.datetime.strptime('2014-12-17', '%Y-%m-%d').date())
+        self.assertNotIn(item1, response.content.decode())
+        self.assertIn(item2, response.content.decode())
+        self.assertIn(item3, response.content.decode())
+        self.assertIn(item4, response.content.decode())
+        self.assertNotIn(item5, response.content.decode())
+    
     def test_display_todo_of_the_week(self):
         item1 = 'Code unit test 1'
         item2 = 'Code unit test 2'
