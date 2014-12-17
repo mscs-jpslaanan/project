@@ -32,7 +32,7 @@ other_is_active = "1"
 
 
 class ViewUsersPageTest(TestCase):
-    def test_is_list_of_users_displayed(TestCase):
+    def test_is_list_of_users_displayed(self):
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -43,6 +43,13 @@ class ViewUsersPageTest(TestCase):
         request.session['last_name'] = admin_last_name
         response = view_users(request)
         self.assertIn("List of users", response.content.decode())
+
+    def test_is_user_info_displayed(self):
+        import datetime
+        User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
+        response = view_users(request)
+        self.assertIn(other_username, response.content.decode())
+        
         
 class AddUserTest(TestCase):
     #import datetime
