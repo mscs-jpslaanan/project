@@ -37,9 +37,55 @@ other_is_staff = 1
 other_is_active = 1
 
 
+class AdministratorAccessTest(TestCase):
+    def test_otheruser_not_access_user_management_modules(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = other_id
+        request.session['is_superuser'] = other_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        #view users
+        response = view_users(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/todo/unauthorized')
+        #add user
+        response = add_user(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/todo/unauthorized')
+        #delete user
+        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
+        response = delete_user(request, other_id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/todo/unauthorized')
+    
+    def test_administrator_access_to_user_management_modules(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        #view users
+        response = view_users(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/todo/unauthorized')
+        #add user
+        response = add_user(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/todo/unauthorized')
+        #delete user
+        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
+        response = delete_user(request, other_id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/todo/unauthorized')
+        
 class ViewUsersPageTest(TestCase):
     
-
     def test_is_list_of_users_displayed(self):
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
@@ -61,8 +107,7 @@ class ViewUsersPageTest(TestCase):
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        import datetime
-        User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
+        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
         response = view_users(request)
         self.assertEqual(User.objects.all().count(), 1)
         self.assertIn(other_username, response.content.decode())
@@ -76,8 +121,7 @@ class ViewUsersPageTest(TestCase):
         request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
-        import datetime
-        User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
+        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
         response = view_users(request)
         self.assertEqual(User.objects.all().count(), 1)
         self.assertIn("Delete", response.content.decode())
