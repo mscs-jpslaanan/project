@@ -40,6 +40,19 @@ OTHER_IS_ACTIVE = 1
 import datetime
 TODAY = datetime.date.today()
 
+
+class TransferToDoDatePage(TestCase):
+
+    def test_transfer_todo_date(self):       
+        item_id = '1'
+        ToDo.objects.create(id=item_id, item='Code unit test 1', added_by=ADMIN_ID, date_todo=TODAY, archive='0')
+        request = HttpRequest()
+        request.method = "POST"
+        new_date = "2014-12-20"
+        request.POST["new_date"] = new_date
+        response = transfer_todo_date(request, item_id)
+        self.assertEqual(ToDo.objects.get(id=item_id).date_todo, new_date)
+        
 class AddRecurringTodoPage(TestCase):
     
     def test_recurring_todo_added(self):
