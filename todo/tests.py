@@ -35,7 +35,7 @@ other_is_active = "1"
 
 class ViewUsersPageTest(TestCase):
     def test_is_list_of_users_displayed(TestCase):
-        
+        pass
 
 class AddUserTest(TestCase):
     #import datetime
