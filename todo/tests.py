@@ -235,6 +235,7 @@ class HomePageTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         response = home_page(request)
@@ -252,6 +253,7 @@ class HomePageTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         
@@ -267,6 +269,7 @@ class HomePageTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         
@@ -300,6 +303,7 @@ class HomePageTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         response = home_page(request)
@@ -321,6 +325,7 @@ class HomePageTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         response = home_page(request)
@@ -362,6 +367,7 @@ class AddToDoFormTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         response = tick_done(request, 5)
@@ -384,6 +390,7 @@ class AddToDoFormTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         response = addtodo(request)

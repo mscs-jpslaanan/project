@@ -37,7 +37,8 @@ def view_users(request):
     return render(request, 'userlist.html', 
                             {'curr_date': current_date,
                             'userList': user_list,
-                            'full_name':fullname
+                            'full_name':fullname,
+                            'is_administrator':request.session['is_superuser']
                            }
                   )
 
@@ -67,6 +68,7 @@ def add_user(request):
     args['form'] = AddUserForm()      
     args['curr_date'] = current_date
     args['full_name'] = fullname
+    args['is_administrator'] = request.session['is_superuser']
     
     return render_to_response('adduser.html', args)
 
@@ -95,6 +97,7 @@ def addtodo(request):
     
     args['curr_date'] = current_date
     args['full_name'] = fullname
+    args['is_administrator'] = request.session['is_superuser']
     
     return render_to_response('add_todo.html', args)                  
 
@@ -115,7 +118,8 @@ def home_page(request):
     return render(request, 'home.html', 
                             {'curr_date': current_date,
                             'todoList': current_todo_list,
-                            'full_name':fullname
+                            'full_name':fullname,
+                            'is_administrator':request.session['is_superuser']
                            }
                   )
 
