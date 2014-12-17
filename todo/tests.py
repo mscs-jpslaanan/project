@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users, delete_user, backoperations, view_weekly, view_monthly, add_recurring_todo
+from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users, delete_user, backoperations, view_weekly, view_monthly, add_recurring_todo, transfer_todo_date
 
 from project.views import login, auth_view, logout
 
@@ -49,9 +49,17 @@ class TransferToDoDatePage(TestCase):
         request = HttpRequest()
         request.method = "POST"
         new_date = "2014-12-20"
+        request.POST["item_id"] = item_id
         request.POST["new_date"] = new_date
-        response = transfer_todo_date(request, item_id)
-        self.assertEqual(ToDo.objects.get(id=item_id).date_todo, new_date)
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
+        response = transfer_todo_date(request)
+        self.assertEqual(ToDo.objects.get(id=item_id).date_todo, datetime.datetime.strptime(new_date, '%Y-%m-%d').date())
         
 class AddRecurringTodoPage(TestCase):
     

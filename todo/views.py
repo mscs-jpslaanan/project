@@ -5,13 +5,44 @@ from django.template import Context
 from todo.models import ToDo
 from django.contrib.auth.models import User
 
-from todo.forms import ToDoForm, AddUserForm, AddRecurringToDoForm
+from todo.forms import ToDoForm, AddUserForm, AddRecurringToDoForm, TransferToDoDateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.core.context_processors import csrf
 
 from django.utils.timezone import utc
 
 import datetime
+
+def transfer_todo_date_form(request, todoID):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+                
+    args = {}
+    args.update( csrf(request) )
+    args['form'] = TransferToDoDateForm()      
+    args['curr_date'] = current_date
+    args['full_name'] = fullname
+    args['item'] = ToDo.objects.get(id=todoID).item
+    args['item_id'] = todoID
+    args['item_current_date'] = ToDo.objects.get(id=todoID).date_todo
+    
+    return render_to_response('transfer_todo_date.html', args)
+
+def transfer_todo_date(request):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+
+    if request.method == "POST":
+        form = TransferToDoDateForm(request.POST)
+        if form.is_valid():
+            i = request.POST["item_id"]
+            new_date = form.cleaned_data['new_date']
+            ToDo.objects.filter(id=i).update(date_todo=new_date)
+            return HttpResponseRedirect('/todo/home')
 
 def add_recurring_todo(request):
     if 'id' not in request.session:
