@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users, delete_user
+from todo.views import home_page, tick_done, tick_cancel, addtodo, add_user, view_users, delete_user, backoperations
 from project.views import login, auth_view, logout
 
 from todo.models import ToDo
@@ -79,15 +79,14 @@ class HistoryOperationsTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = OTHER_ID
-        request.session['is_superuser'] = OTHER_IS_SUPERUSER
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
         request.session['first_name'] = ADMIN_FIRST_NAME
         request.session['last_name'] = ADMIN_LAST_NAME
         
-        response = home_page(request)
+        response = backoperations(request)
         
         self.assertEqual(ToDo.objects.all().count(), 4)
-        self.assertEqual(ToDo.objects.get(id=1).item, '')
         self.assertEqual(ToDo.objects.get(id=2).item, item2)
         self.assertEqual(ToDo.objects.get(id=3).item, item3)
         self.assertEqual(ToDo.objects.get(id=4).item, item4)
@@ -378,6 +377,7 @@ class HomePageTest(TestCase):
         request.session['is_superuser'] = ADMIN_IS_SUPERUSER
         request.session['first_name'] = ADMIN_FIRST_NAME
         request.session['last_name'] = ADMIN_LAST_NAME
+        response = backoperations(request)
         response = home_page(request)
         self.assertNotIn('Code unit test 1', response.content.decode())
         self.assertNotIn('Code unit test 2', response.content.decode())
@@ -513,6 +513,10 @@ class SecurityTest(TestCase):
         self.assertEqual(response['location'], '/accounts/unauthorized')
         
         response = delete_user(request, random_id)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/unauthorized')
+        
+        response = backoperations(request)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/accounts/unauthorized')
         

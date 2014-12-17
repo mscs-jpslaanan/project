@@ -100,16 +100,31 @@ def addtodo(request):
     args['is_administrator'] = request.session['is_superuser']
     
     return render_to_response('add_todo.html', args)                  
-
+def backoperations(request):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+    
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    
+    #pending todo items will be transferred today
+    ToDo.objects.filter(date_todo__lt=current_date).filter(archive='0').update(date_todo=current_date)
+    
+    #purge done and cancelled to do items < 7 days
+    import datetime
+    today = datetime.date.today()
+    seven_days = datetime.timedelta(days=7)
+    seven_days_ago = today - seven_days
+    ToDo.objects.filter(date_todo__lt=seven_days_ago).delete()
+    
+    return HttpResponseRedirect('/todo/home')
+    
 def home_page(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
         
     import time
     current_date = time.strftime('%Y-%m-%d')
-    
-    #REVISE CODE HERE
-    ToDo.objects.filter(date_todo__lt=current_date).filter(archive='0').update(date_todo=current_date)
     
     current_todo_list = ToDo.objects.filter(date_todo=current_date).filter(added_by=request.session['id'])
     
