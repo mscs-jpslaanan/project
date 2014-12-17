@@ -16,28 +16,28 @@ from django.utils.importlib import import_module
 
 from django.utils import timezone
 
-admin_id = 1
-admin_password = "patster"
-admin_is_superuser = 1
-admin_username = "patster"
-admin_first_name = "patrick"
-admin_last_name = "la-anan"
-admin_email = "john_patrick_laanan@yahoo.com"
-admin_is_staff = 1
-admin_is_active = 1
+ADMIN_ID = 1
+ADMIN_PASSWORD = "patster"
+ADMIN_IS_SUPERUSER = 1
+ADMIN_USERNAME = "patster"
+ADMIN_FIRST_NAME = "patrick"
+ADMIN_LAST_NAME = "la-anan"
+ADMIN_EMAIL = "john_patrick_laanan@yahoo.com"
+ADMIN_IS_STAFF = 1
+ADMIN_IS_ACTIVE = 1
 
-other_id = 500
-other_password = "otheruser"
-other_is_superuser = 0
-other_username = "otheruser"
-other_first_name = "other"
-other_last_name = "user"
-other_email = "otheruser@otheruser.com"
-other_is_staff = 1
-other_is_active = 1
+OTHER_ID = 500
+OTHER_PASSWORD = "otheruser"
+OTHER_IS_SUPERUSER = 0
+OTHER_USERNAME = "otheruser"
+OTHER_FIRST_NAME = "other"
+OTHER_LAST_NAME = "user"
+OTHER_EMAIL = "otheruser@otheruser.com"
+OTHER_IS_STAFF = 1
+OTHER_IS_ACTIVE = 1
 
 import datetime
-TODAY = datetime.date.TODAY()
+TODAY = datetime.date.today()
 
 
 
@@ -47,10 +47,10 @@ class AdministratorAccessTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = other_id
-        request.session['is_superuser'] = other_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = OTHER_ID
+        request.session['is_superuser'] = OTHER_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         #view users
         response = view_users(request)
         self.assertEqual(response.status_code, 302)
@@ -60,8 +60,8 @@ class AdministratorAccessTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/todo/unauthorized')
         #delete user
-        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
-        response = delete_user(request, other_id)
+        User.objects.create(id=OTHER_ID, password=OTHER_PASSWORD, is_superuser=OTHER_IS_SUPERUSER, first_name=OTHER_FIRST_NAME, last_name=OTHER_LAST_NAME, email=OTHER_EMAIL, is_staff=OTHER_IS_STAFF, is_active=OTHER_IS_ACTIVE)
+        response = delete_user(request, OTHER_ID)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/todo/unauthorized')
     
@@ -70,10 +70,10 @@ class AdministratorAccessTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         #view users
         response = view_users(request)
         self.assertEqual(response.status_code, 200)
@@ -83,8 +83,8 @@ class AdministratorAccessTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("Add User", response.content.decode())
         #delete user
-        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
-        response = delete_user(request, other_id)
+        User.objects.create(id=OTHER_ID, password=OTHER_PASSWORD, is_superuser=OTHER_IS_SUPERUSER, first_name=OTHER_FIRST_NAME, last_name=OTHER_LAST_NAME, email=OTHER_EMAIL, is_staff=OTHER_IS_STAFF, is_active=OTHER_IS_ACTIVE)
+        response = delete_user(request, OTHER_ID)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/todo/view_users')
         
@@ -93,10 +93,10 @@ class AdministratorAccessTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = other_is_superuser
-        request.session['first_name'] = other_first_name
-        request.session['last_name'] = other_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = OTHER_IS_SUPERUSER
+        request.session['first_name'] = OTHER_FIRST_NAME
+        request.session['last_name'] = OTHER_LAST_NAME
         response = home_page(request)
         self.assertNotIn("View Users", response.content.decode())
         
@@ -105,10 +105,10 @@ class AdministratorAccessTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = home_page(request)
         self.assertIn("View Users", response.content.decode())
         
@@ -119,10 +119,10 @@ class ViewUsersPageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = view_users(request)
         self.assertIn("List of users", response.content.decode())
 
@@ -131,25 +131,25 @@ class ViewUsersPageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
-        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
+        User.objects.create(id=OTHER_ID, password=OTHER_PASSWORD, is_superuser=OTHER_IS_SUPERUSER, first_name=OTHER_FIRST_NAME, last_name=OTHER_LAST_NAME, email=OTHER_EMAIL, is_staff=OTHER_IS_STAFF, is_active=OTHER_IS_ACTIVE)
         response = view_users(request)
         self.assertEqual(User.objects.all().count(), 1)
-        self.assertIn(other_username, response.content.decode())
+        self.assertIn(OTHER_USERNAME, response.content.decode())
         
     def test_other_user_has_delete(self):
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
-        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
+        User.objects.create(id=OTHER_ID, password=OTHER_PASSWORD, is_superuser=OTHER_IS_SUPERUSER, first_name=OTHER_FIRST_NAME, last_name=OTHER_LAST_NAME, email=OTHER_EMAIL, is_staff=OTHER_IS_STAFF, is_active=OTHER_IS_ACTIVE)
         response = view_users(request)
         self.assertEqual(User.objects.all().count(), 1)
         self.assertIn("Delete", response.content.decode())
@@ -159,44 +159,44 @@ class ViewUsersPageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         import datetime
-        User.objects.create(id=admin_id, password=admin_password, is_superuser=admin_is_superuser, first_name=admin_first_name, last_name=admin_last_name, email=admin_email, is_staff=admin_is_staff, is_active=admin_is_active)
+        User.objects.create(id=ADMIN_ID, password=ADMIN_PASSWORD, is_superuser=ADMIN_IS_SUPERUSER, first_name=ADMIN_FIRST_NAME, last_name=ADMIN_LAST_NAME, email=ADMIN_EMAIL, is_staff=ADMIN_IS_STAFF, is_active=ADMIN_IS_ACTIVE)
         response = view_users(request)
         self.assertEqual(User.objects.all().count(), 1)
         self.assertNotIn("Delete", response.content.decode())
         
     def test_if_user_is_deleted(self):
-        User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
+        User.objects.create(id=OTHER_ID, password=OTHER_PASSWORD, is_superuser=OTHER_IS_SUPERUSER, first_name=OTHER_FIRST_NAME, last_name=OTHER_LAST_NAME, email=OTHER_EMAIL, is_staff=OTHER_IS_STAFF, is_active=OTHER_IS_ACTIVE)
         self.assertEqual(User.objects.all().count(), 1)
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
-        response = delete_user(request, other_id)
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
+        response = delete_user(request, OTHER_ID)
         
         
     
     
 class AddUserPageTest(TestCase):
     #import datetime
-    #User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
+    #User.objects.create(id=OTHER_ID, password=OTHER_PASSWORD, last_login=datetime.datetime.now(), is_superuser=OTHER_IS_SUPERUSER, first_name=OTHER_FIRST_NAME, last_name=OTHER_LAST_NAME, email=OTHER_EMAIL, is_staff=OTHER_IS_STAFF, is_active=OTHER_IS_ACTIVE, date_joined=datetime.datetime.now())
     def test_if_adduser_form_required_fields_present(self):
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = add_user(request)
         self.assertIn("Username:", response.content.decode())
         self.assertIn("Password:", response.content.decode())
@@ -208,40 +208,40 @@ class AddUserPageTest(TestCase):
     def test_if_user_added(self):
         request = HttpRequest()
         request.method = "POST"
-        request.POST["username"]=other_username
-        request.POST["password1"]=other_password
-        request.POST["password2"]=other_password
+        request.POST["username"]=OTHER_USERNAME
+        request.POST["password1"]=OTHER_PASSWORD
+        request.POST["password2"]=OTHER_PASSWORD
         request.POST["last_login"]=timezone.now()
-        request.POST["is_superuser"]=other_is_superuser
-        request.POST["first_name"]=other_first_name
-        request.POST["last_name"]=other_last_name
-        request.POST["email"]=other_email
-        request.POST["is_staff"]=other_is_staff
-        request.POST["is_active"]=other_is_active
+        request.POST["is_superuser"]=OTHER_IS_SUPERUSER
+        request.POST["first_name"]=OTHER_FIRST_NAME
+        request.POST["last_name"]=OTHER_LAST_NAME
+        request.POST["email"]=OTHER_EMAIL
+        request.POST["is_staff"]=OTHER_IS_STAFF
+        request.POST["is_active"]=OTHER_IS_ACTIVE
         request.POST["date_joined"]=timezone.now()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = add_user(request)
         self.assertEqual(User.objects.all().count(), 1)
     
 class HomePageTest(TestCase):
 
     def test_home_page_displays_only_todos_added(self):
-        ToDo.objects.create(item='Code unit test', added_by=admin_id, date_todo=TODAY, archive='0')
-        ToDo.objects.create(item='Fix code', added_by=other_id, date_todo=TODAY, archive='0')
+        ToDo.objects.create(item='Code unit test', added_by=ADMIN_ID, date_todo=TODAY, archive='0')
+        ToDo.objects.create(item='Fix code', added_by=OTHER_ID, date_todo=TODAY, archive='0')
         request = HttpRequest()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = home_page(request)
         self.assertIn('Code unit test', response.content.decode())
         self.assertNotIn('Fix code', response.content.decode())
@@ -249,10 +249,10 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = other_id
-        request.session['is_superuser'] = other_is_superuser
-        request.session['first_name'] = other_first_name
-        request.session['last_name'] = other_last_name
+        request.session['id'] = OTHER_ID
+        request.session['is_superuser'] = OTHER_IS_SUPERUSER
+        request.session['first_name'] = OTHER_FIRST_NAME
+        request.session['last_name'] = OTHER_LAST_NAME
         response = home_page(request)
         self.assertNotIn('Code unit test', response.content.decode())
         self.assertIn('Fix code', response.content.decode())
@@ -262,10 +262,10 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = home_page(request)
         import time
         current_date = time.strftime('%Y-%m-%d')
@@ -278,10 +278,10 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = home_page(request)
         self.assertIn('Code unit test', response.content.decode())
         self.assertIn('Fix code', response.content.decode())
@@ -291,10 +291,10 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = home_page(request)
         self.assertIn('To do list is empty', response.content.decode())
         
@@ -321,10 +321,10 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = home_page(request)
         self.assertNotIn('Code unit test 1', response.content.decode())
         self.assertNotIn('Code unit test 2', response.content.decode())
@@ -340,10 +340,10 @@ class HomePageTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = home_page(request)
         self.assertIn('Cancelled', response.content.decode())
         self.assertIn('Done', response.content.decode())
@@ -378,10 +378,10 @@ class AddToDoFormTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = tick_done(request, 5)
         response = addtodo(request)
         self.assertIn("Item:", response.content.decode())
@@ -394,17 +394,15 @@ class AddToDoFormTest(TestCase):
         self.assertEqual(saved_todos.count(), 0)
         request = HttpRequest()
         request.method = "POST"
-        import datetime
-        TODAY = datetime.date.TODAY()
         request.POST["item"] = "Code unit test"
         request.POST["date_todo"] = TODAY
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = addtodo(request)
         saved_todos = ToDo.objects.all()
         self.assertEqual(saved_todos.count(), 1)
@@ -414,8 +412,8 @@ class SecurityTest(TestCase):
     def test_successful_login(self):
         request = HttpRequest()
         request.method = "POST"
-        request.POST["username"] = admin_username
-        request.POST["password"] = admin_password
+        request.POST["username"] = ADMIN_USERNAME
+        request.POST["password"] = ADMIN_PASSWORD
         response = auth_view(request)
         #self.assertEqual(response.status_code, 302)
         #self.assertEqual(response['location'], '/todo/home')
@@ -425,11 +423,11 @@ class SecurityTest(TestCase):
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
-        request.session['username'] = admin_username
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['username'] = ADMIN_USERNAME
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         response = logout(request)
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
@@ -482,11 +480,11 @@ class LoginLogoutPageTest(TestCase):
         session_key = None
         request.session = engine.SessionStore(session_key)
         
-        request.session['username'] = admin_username
-        request.session['id'] = admin_id
-        request.session['is_superuser'] = admin_is_superuser
-        request.session['first_name'] = admin_first_name
-        request.session['last_name'] = admin_last_name
+        request.session['username'] = ADMIN_USERNAME
+        request.session['id'] = ADMIN_ID
+        request.session['is_superuser'] = ADMIN_IS_SUPERUSER
+        request.session['first_name'] = ADMIN_FIRST_NAME
+        request.session['last_name'] = ADMIN_LAST_NAME
         
         response = logout(request)
         self.assertIn("Logged out!", response.content.decode())
