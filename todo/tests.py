@@ -14,22 +14,25 @@ from django.test.client import Client
 from django.conf import settings
 from django.utils.importlib import import_module
 
-admin_username = "patster"
+admin_id = 1
 admin_password = "patster"
-admin_id = "1"
-admin_is_superuser = "1"
+admin_is_superuser = 1
+admin_username = "patster"
 admin_first_name = "patrick"
 admin_last_name = "la-anan"
+admin_email = "john_patrick_laanan@yahoo.com"
+admin_is_staff = 1
+admin_is_active = 1
 
-other_id = "2"
+other_id = 2
 other_password = "otheruser"
-other_is_superuser = "0"
+other_is_superuser = 0
 other_username = "otheruser"
 other_first_name = "other"
 other_last_name = "user"
 other_email = "otheruser@otheruser.com"
-other_is_staff = "1"
-other_is_active = "1"
+other_is_staff = 1
+other_is_active = 1
 
 
 class ViewUsersPageTest(TestCase):
@@ -59,6 +62,21 @@ class ViewUsersPageTest(TestCase):
         response = view_users(request)
         self.assertEqual(User.objects.all().count(), 1)
         self.assertIn(other_username, response.content.decode())
+        
+    def test_other_user_has_delete(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        import datetime
+        User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
+        response = view_users(request)
+        self.assertEqual(User.objects.all().count(), 1)
+        self.assertIn("Delete", response.content.decode())
     
     def test_admistrator_has_no_delete(self):
         request = HttpRequest()
