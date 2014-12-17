@@ -72,17 +72,17 @@ class AdministratorAccessTest(TestCase):
         request.session['last_name'] = admin_last_name
         #view users
         response = view_users(request)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/todo/unauthorized')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("List of users", response.content.decode())
         #add user
         response = add_user(request)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/todo/unauthorized')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Add User", response.content.decode())
         #delete user
         User.objects.create(id=other_id, password=other_password, is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active)
         response = delete_user(request, other_id)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/todo/unauthorized')
+        self.assertEqual(response['location'], '/todo/view_users')
         
 class ViewUsersPageTest(TestCase):
     

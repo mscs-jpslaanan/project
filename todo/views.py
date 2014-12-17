@@ -14,13 +14,19 @@ from django.utils.timezone import utc
 def delete_user(request, userID):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
-        
+    
+    if request.session['is_superuser'] != 1:
+        return HttpResponseRedirect('/todo/unauthorized')
+    
     User.objects.filter(id=userID).delete()
     return redirect('/todo/view_users')
 
 def view_users(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
+
+    if request.session['is_superuser'] != 1:
+        return HttpResponseRedirect('/todo/unauthorized')
         
     import time
     current_date = time.strftime('%Y-%m-%d')
@@ -38,6 +44,9 @@ def view_users(request):
 def add_user(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
+    
+    if request.session['is_superuser'] != 1:
+        return HttpResponseRedirect('/todo/unauthorized')
     
     import time
     current_date = time.strftime('%Y-%m-%d')
@@ -124,3 +133,9 @@ def tick_cancel(request, todoID):
     ToDo.objects.filter(id=todoID).update(archive=2)
     return redirect('home')
 
+def unauthorized(request):
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+
+    return render_to_response('unauthorized_access2.html', {'curr_date':current_date, 'full_name':fullname})
