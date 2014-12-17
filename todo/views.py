@@ -3,11 +3,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context
 
 from todo.models import ToDo
+from django.contrib.auth.models import User
 
 from todo.forms import ToDoForm
+from django.contrib.auth.forms import UserCreationForm
 from django.core.context_processors import csrf
 
-from django.contrib.auth.models import User
+
 
 def view_users(request):
     if 'id' not in request.session:
@@ -29,7 +31,11 @@ def view_users(request):
 def add_user(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
+    
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
         
+    
     import time
     current_date = time.strftime('%Y-%m-%d')
     fullname = request.session['first_name'] + ' ' + request.session['last_name']
@@ -39,7 +45,34 @@ def add_user(request):
                             'full_name':fullname
                            }
                   )
+
+def addtodo(request):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
     
+    if request.POST:
+        form = ToDoForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.added_by = request.session['id']
+            instance.archive = 0
+            instance.save()
+        return HttpResponseRedirect('/todo/home')
+    else:
+        form = ToDoForm()
+    
+    args = {}
+    args.update( csrf(request) )
+    args['form'] = form
+    
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    
+    args['curr_date'] = current_date
+    args['full_name'] = fullname
+    
+    return render_to_response('add_todo.html', args)                  
 
 def home_page(request):
     if 'id' not in request.session:
@@ -75,30 +108,3 @@ def tick_cancel(request, todoID=1):
     ToDo.objects.filter(id=todoID).update(archive=2)
     return redirect('home')
 
-def addtodo(request):
-    if 'id' not in request.session:
-        return HttpResponseRedirect('/accounts/unauthorized')
-    
-    if request.POST:
-        form = ToDoForm(request.POST)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            instance.added_by = request.session['id']
-            instance.archive = 0
-            instance.save()
-        return HttpResponseRedirect('/todo/home')
-    else:
-        form = ToDoForm()
-    
-    args = {}
-    args.update( csrf(request) )
-    args['form'] = form
-    
-    fullname = request.session['first_name'] + ' ' + request.session['last_name']
-    import time
-    current_date = time.strftime('%Y-%m-%d')
-    
-    args['curr_date'] = current_date
-    args['full_name'] = fullname
-    
-    return render_to_response('add_todo.html', args)

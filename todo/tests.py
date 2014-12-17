@@ -94,10 +94,28 @@ class ViewUsersPageTest(TestCase):
         self.assertNotIn("Delete", response.content.decode())
         
         
-class AddUserTest(TestCase):
+class AddUserPageTest(TestCase):
     #import datetime
     #User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
-    
+    def test_is_adduser_form_required_fields_present(self):
+        request = HttpRequest()
+        request.method = "POST"
+
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        response = add_user(request)
+        self.assertIn("Username:", response.content.decode())
+        self.assertIn("Password:", response.content.decode())
+        self.assertIn("Email:", response.content.decode())
+        self.assertIn("First Name:", response.content.decode())
+        self.assertIn("Last Name:", response.content.decode())
+        self.assertIn("<input type='submit' name='submit' value='Add User' />", response.content.decode())
+        
     def test_is_user_added(self):
         request = HttpRequest()
         request.method = "POST"
