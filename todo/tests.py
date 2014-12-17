@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import TestCase
 
 
-from todo.views import home_page, tick_done, tick_cancel, addtodo
+from todo.views import home_page, tick_done, tick_cancel, addtodo, adduser
 from project.views import login, auth_view, logout
 
 from todo.models import ToDo
@@ -32,6 +32,10 @@ other_email = "otheruser@otheruser.com"
 other_is_staff = "1"
 other_is_active = "1"
 
+
+class ViewUsersPageTest(TestCase):
+    def test_is_list_of_users_displayed(TestCase):
+        
 
 class AddUserTest(TestCase):
     #import datetime
@@ -100,6 +104,21 @@ class HomePageTest(TestCase):
         
         self.assertIn('Code unit test', response.content.decode())
         self.assertIn('Fix code', response.content.decode())
+        
+    def test_home_page_displays_prompt_on_empty_todolist(self):
+        request = HttpRequest()
+        
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        
+        response = home_page(request)
+        
+        self.assertIn('To do list is empty', response.content.decode())
+        
     
     def test_home_page_transfer_pending_todos_to_current_day(self):
         import datetime
