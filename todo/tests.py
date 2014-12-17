@@ -245,6 +245,18 @@ class HomePageTest(TestCase):
         response = home_page(request)
         self.assertIn('Code unit test', response.content.decode())
         self.assertNotIn('Fix code', response.content.decode())
+        
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = other_id
+        request.session['is_superuser'] = other_is_superuser
+        request.session['first_name'] = other_first_name
+        request.session['last_name'] = other_last_name
+        response = home_page(request)
+        self.assertNotIn('Code unit test', response.content.decode())
+        self.assertIn('Fix code', response.content.decode())
 
     def test_home_page_display_current_date(self):
         request = HttpRequest()
