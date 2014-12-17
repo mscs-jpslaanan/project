@@ -20,8 +20,6 @@ admin_is_superuser = "1"
 admin_first_name = "patrick"
 admin_last_name = "la-anan"
 
-
-
 other_id = "2"
 other_password = "otheruser"
 other_is_superuser = "0"
@@ -35,8 +33,17 @@ other_is_active = "1"
 
 class ViewUsersPageTest(TestCase):
     def test_is_list_of_users_displayed(TestCase):
-        pass
-
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = admin_id
+        request.session['is_superuser'] = admin_is_superuser
+        request.session['first_name'] = admin_first_name
+        request.session['last_name'] = admin_last_name
+        response = viewusers(request)
+        self.assertIn("List of users", response.content.decode())
+        
 class AddUserTest(TestCase):
     #import datetime
     #User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
