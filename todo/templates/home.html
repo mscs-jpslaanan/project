@@ -6,9 +6,9 @@
         <h1>To do list</h1>
         
         <p>
-            <a href="/todo/viewweekly">View weekly</a>
+            <a href="/todo/view_weekly">View weekly</a>
             &nbsp;&nbsp;&nbsp;
-            <a href="/todo/viewmonthly">View monthly</a>
+            <a href="/todo/view_monthly">View monthly</a>
         </p>
         
         {% if todoList.count > 0 %}
@@ -16,24 +16,20 @@
         <table border="1" width="100%">
             <tr>
                 <th>Description</th>
-                <th>Added By</th>
-                <th>To do Date</th>
                 <th></th>
             </tr>
             {% for todo in todoList %}
                 <tr>
                     <td>{{ todo.item }}</td>
-                    <td>{{ todo.added_by }}</td>
-                    <td>{{ todo.date_todo }}</td>
                     {% if todo.archive == 0 %}
-                        <td>
+                        <td align="center">
                             <a href="/todo/tick_done/{{ todo.id }}">Done</a>
                             <a href="/todo/tick_cancel/{{ todo.id }}">Cancel</a>
                         </td>
                     {% elif todo.archive == 1 %}
-                        <td>Done</td>
+                        <td align="center">Done</td>
                     {% elif todo.archive == 2 %}
-                        <td>Cancelled</td>
+                        <td align="center">Cancelled</td>
                     {% endif %}
                 </tr>
             {% endfor %}

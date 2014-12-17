@@ -11,6 +11,8 @@ from django.core.context_processors import csrf
 
 from django.utils.timezone import utc
 
+import datetime
+
 def delete_user(request, userID):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
@@ -118,6 +120,46 @@ def backoperations(request):
     ToDo.objects.filter(date_todo__lt=seven_days_ago).delete()
     
     return HttpResponseRedirect('/todo/home')
+
+def view_weekly(request, date_today = datetime.date.today()):
+    if 'id' not in request.session:
+        return HttpResponseRedirect('/accounts/unauthorized')
+    
+    
+    dow_today = date_today.weekday()
+    if dow_today == 6:
+        days_ago_saturday = 1
+    else:
+        days_ago_saturday = dow_today + 2
+    
+    delta_saturday = datetime.timedelta(days=days_ago_saturday)
+    saturday = date_today - delta_saturday
+    delta_prevsunday = datetime.timedelta(days=6)
+    prev_sunday = saturday - delta_prevsunday
+    
+    eight_days = datetime.timedelta(days=8)
+    
+    week_end = saturday + eight_days
+    week_start = prev_sunday + eight_days
+    
+    
+    week_end = week_end.strftime('%Y-%m-%d')
+    week_start = week_start.strftime('%Y-%m-%d')
+    
+        
+    weekly_todo_list = ToDo.objects.filter(date_todo__lte=week_end).filter(date_todo__gte=week_start).filter(added_by=request.session['id'])
+    
+    fullname = request.session['first_name'] + ' ' + request.session['last_name']
+    
+    return render(request, 'view_weekly.html', 
+                            {'curr_date': date_today,
+                            'end_week_day':week_end,
+                            'start_week_day':week_start,
+                            'todoList': weekly_todo_list,
+                            'full_name':fullname,
+                            'is_administrator':request.session['is_superuser']
+                           }
+                  )    
     
 def home_page(request):
     if 'id' not in request.session:
