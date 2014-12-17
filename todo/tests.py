@@ -283,6 +283,30 @@ class AddUserPageTest(TestCase):
     
 class HomePageTest(TestCase):
 
+    def test_home_page_displays_view_weekly_todo_list_link(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = OTHER_ID
+        request.session['is_superuser'] = OTHER_IS_SUPERUSER
+        request.session['first_name'] = OTHER_FIRST_NAME
+        request.session['last_name'] = OTHER_LAST_NAME
+        response = home_page(request)
+        self.assertIn("View weekly todo list", response.content.decode())
+        
+    def test_home_page_displays_view_monthly_todo_list_link(self):
+        request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        session_key = None
+        request.session = engine.SessionStore(session_key)
+        request.session['id'] = OTHER_ID
+        request.session['is_superuser'] = OTHER_IS_SUPERUSER
+        request.session['first_name'] = OTHER_FIRST_NAME
+        request.session['last_name'] = OTHER_LAST_NAME
+        response = home_page(request)
+        self.assertIn("View monthly todo list", response.content.decode())
+
     def test_home_page_displays_only_todos_added(self):
         ToDo.objects.create(item='Code unit test', added_by=ADMIN_ID, date_todo=TODAY, archive='0')
         ToDo.objects.create(item='Fix code', added_by=OTHER_ID, date_todo=TODAY, archive='0')
