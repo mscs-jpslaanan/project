@@ -14,6 +14,8 @@ from django.test.client import Client
 from django.conf import settings
 from django.utils.importlib import import_module
 
+from django.utils import timezone
+
 admin_id = 1
 admin_password = "patster"
 admin_is_superuser = 1
@@ -24,7 +26,7 @@ admin_email = "john_patrick_laanan@yahoo.com"
 admin_is_staff = 1
 admin_is_active = 1
 
-other_id = 2
+other_id = 500
 other_password = "otheruser"
 other_is_superuser = 0
 other_username = "otheruser"
@@ -99,8 +101,6 @@ class AddUserPageTest(TestCase):
     #User.objects.create(id=other_id, password=other_password, last_login=datetime.datetime.now(), is_superuser=other_is_superuser, first_name=other_first_name, last_name=other_last_name, email=other_email, is_staff=other_is_staff, is_active=other_is_active, date_joined=datetime.datetime.now())
     def test_is_adduser_form_required_fields_present(self):
         request = HttpRequest()
-        request.method = "POST"
-
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
@@ -112,27 +112,26 @@ class AddUserPageTest(TestCase):
         self.assertIn("Username:", response.content.decode())
         self.assertIn("Password:", response.content.decode())
         self.assertIn("Email:", response.content.decode())
-        self.assertIn("First Name:", response.content.decode())
-        self.assertIn("Last Name:", response.content.decode())
+        self.assertIn("First name:", response.content.decode())
+        self.assertIn("Last name:", response.content.decode())
         self.assertIn("<input type='submit' name='submit' value='Add User' />", response.content.decode())
         
     def test_is_user_added(self):
         request = HttpRequest()
-        request.method = "POST"
         import datetime
         today = datetime.date.today()
-        
-        request.POST["id"]=other_id
-        request.POST["password"]=other_password
-        request.POST["last_login"]=datetime.datetime.now()
+        request.method = "POST"
+        request.POST["username"]=other_username
+        request.POST["password1"]=other_password
+        request.POST["password2"]=other_password
+        request.POST["last_login"]=timezone.now()
         request.POST["is_superuser"]=other_is_superuser
         request.POST["first_name"]=other_first_name
         request.POST["last_name"]=other_last_name
         request.POST["email"]=other_email
         request.POST["is_staff"]=other_is_staff
         request.POST["is_active"]=other_is_active
-        request.POST["date_joined"]=datetime.datetime.now()
-        
+        request.POST["date_joined"]=timezone.now()
         engine = import_module(settings.SESSION_ENGINE)
         session_key = None
         request.session = engine.SessionStore(session_key)
@@ -141,9 +140,7 @@ class AddUserPageTest(TestCase):
         request.session['first_name'] = admin_first_name
         request.session['last_name'] = admin_last_name
         response = add_user(request)
-    
-        user = User.objects.get(id=other_id)
-        self.assertEqual(user.id, other_id)
+        self.assertEqual(User.objects.all().count(), 1)
     
 
 

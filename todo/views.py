@@ -5,11 +5,11 @@ from django.template import Context
 from todo.models import ToDo
 from django.contrib.auth.models import User
 
-from todo.forms import ToDoForm
+from todo.forms import ToDoForm, AddUserForm
 from django.contrib.auth.forms import UserCreationForm
 from django.core.context_processors import csrf
 
-
+from django.utils.timezone import utc
 
 def view_users(request):
     if 'id' not in request.session:
@@ -32,19 +32,27 @@ def add_user(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
     
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        
-    
     import time
     current_date = time.strftime('%Y-%m-%d')
     fullname = request.session['first_name'] + ' ' + request.session['last_name']
     
-    return render(request, 'adduser.html', 
-                            {'curr_date': current_date,
-                            'full_name':fullname
-                           }
-                  )
+    if request.method == "POST":
+        form = AddUserForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.is_superuser = 0
+            instance.is_staff = 0
+            instance.is_active = 1
+            instance.save()
+            return HttpResponseRedirect('/todo/view_users')
+            
+    args = {}
+    args.update( csrf(request) )
+    args['form'] = AddUserForm()      
+    args['curr_date'] = current_date
+    args['full_name'] = fullname
+    
+    return render_to_response('adduser.html', args)
 
 def addtodo(request):
     if 'id' not in request.session:
@@ -57,7 +65,7 @@ def addtodo(request):
             instance.added_by = request.session['id']
             instance.archive = 0
             instance.save()
-        return HttpResponseRedirect('/todo/home')
+            return HttpResponseRedirect('/todo/home')
     else:
         form = ToDoForm()
     
@@ -81,6 +89,7 @@ def home_page(request):
     import time
     current_date = time.strftime('%Y-%m-%d')
     
+    #REVISE CODE HERE
     ToDo.objects.filter(date_todo__lt=current_date).filter(archive='0').update(date_todo=current_date)
     
     current_todo_list = ToDo.objects.filter(date_todo=current_date)
