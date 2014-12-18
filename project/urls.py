@@ -2,9 +2,9 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
 urlpatterns = patterns('',
+    url(r'^$', 'project.views.login'),
     #todo app urls
     (r'^todo/', include('todo.urls')),
-    
     #user authentication urls
     url(r'^accounts/login/$', 'project.views.login'),
     url(r'^accounts/auth/$', 'project.views.auth_view'),

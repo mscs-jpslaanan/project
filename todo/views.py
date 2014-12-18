@@ -29,6 +29,7 @@ def transfer_todo_date_form(request, todoID):
     args['item'] = ToDo.objects.get(id=todoID).item
     args['item_id'] = todoID
     args['item_current_date'] = ToDo.objects.get(id=todoID).date_todo
+    args['is_administrator'] = request.session['is_superuser']
     
     return render_to_response('transfer_todo_date.html', args)
 
@@ -74,6 +75,7 @@ def add_recurring_todo(request):
     args['form'] = AddRecurringToDoForm()      
     args['curr_date'] = current_date
     args['full_name'] = fullname
+    args['is_administrator'] = request.session['is_superuser']
     
     return render_to_response('addrecurringtodo.html', args)
     
@@ -168,7 +170,8 @@ def addtodo(request):
     args['full_name'] = fullname
     args['is_administrator'] = request.session['is_superuser']
     
-    return render_to_response('add_todo.html', args)                  
+    return render_to_response('add_todo.html', args)
+    
 def backoperations(request):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
@@ -192,6 +195,9 @@ def view_monthly(request, today = datetime.date.today()):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
     
+    import time
+    current_date = time.strftime('%Y-%m-%d')
+    
     first_day_current = datetime.datetime(today.year, today.month, 1)
     
     if(today.month == 12):
@@ -212,7 +218,7 @@ def view_monthly(request, today = datetime.date.today()):
     fullname = request.session['first_name'] + ' ' + request.session['last_name']
     
     return render(request, 'view_monthly.html', 
-                            {'curr_date': today,
+                            {'curr_date': current_date,
                             'end_month_day':last_day_current,
                             'start_month_day':first_day_current,
                             'todoList': monthly_todo_list,
@@ -226,6 +232,8 @@ def view_weekly(request, date_today = datetime.date.today()):
     if 'id' not in request.session:
         return HttpResponseRedirect('/accounts/unauthorized')
     
+    import time
+    current_date = time.strftime('%Y-%m-%d')
     
     dow_today = date_today.weekday()
     if dow_today == 6:
@@ -253,7 +261,7 @@ def view_weekly(request, date_today = datetime.date.today()):
     fullname = request.session['first_name'] + ' ' + request.session['last_name']
     
     return render(request, 'view_weekly.html', 
-                            {'curr_date': date_today,
+                            {'curr_date': current_date,
                             'end_week_day':week_end,
                             'start_week_day':week_start,
                             'todoList': weekly_todo_list,
